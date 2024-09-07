@@ -1,0 +1,35 @@
+.main-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 20px;
+    flex-direction: row;
+  }
+  .main-nav-logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .main-nav-logo-image {
+    max-width: 100%;
+    width: 200px;
+  }
+  .main-nav-item {
+    text-decoration: none;
+    margin-right: 0.5rem;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    font-weight: 600;
+    gap: 5px;
+    display: flex;
+  }
+  .main-nav-item > a {
+    color: #2c3e50;
+  }
+  .main-nav-item:hover {
+    text-decoration: underline;
+  }
+    
