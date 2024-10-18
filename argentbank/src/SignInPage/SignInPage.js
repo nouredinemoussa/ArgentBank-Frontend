@@ -1,50 +1,59 @@
 import React, { useState } from 'react';
-import './SignInPage.css';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { loginUser, setUserInfo } from '../redux/userSlice';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import './SignInPage.css';
 
 const SignInPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const error = useSelector((state) => state.user.error);
+  const loading = useSelector((state) => state.user.loading);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
 
-    try {
-      const response = await fetch('http://localhost:3001/api/v1/user/login', {
-        method: 'POST',
+
+    const resultAction = await dispatch(loginUser({ email, password }));
+
+    if (loginUser.fulfilled.match(resultAction)) {
+      const token = resultAction.payload;
+
+      if (rememberMe) {
+        localStorage.setItem('token', token);
+      }
+
+
+      const userResponse = await fetch('http://localhost:3001/api/v1/user/profile', {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ email, password }), // Envoi des infos attendues par l'API
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Sauvegarder le token dans localStorage ou sessionStorage
-        localStorage.setItem('token', data.token);
-        // Rediriger l'utilisateur vers la page protégée
-        navigate('./UserPage/UserPage.js');
+      const userData = await userResponse.json();
+      if (userResponse.ok) {
+        dispatch(setUserInfo(userData.body));
+        navigate(`/user/${userData.body.id}`);
       } else {
-        // Afficher le message d'erreur renvoyé par l'API
-        setErrorMessage(data.message || 'Login failed');
+        console.error('Erreur lors de la récupération des infos utilisateur:', userData.message);
       }
-    } catch (error) {
-      setErrorMessage('An error occurred. Please try again.');
     }
   };
 
   return (
     <main className="main bg-dark">
       <section className="sign-in-content">
-        <i className="fa fa-user-circle sign-in-icon"></i>
+        <FontAwesomeIcon icon={faUserCircle} />
         <h1>Sign In</h1>
         <form onSubmit={handleSubmit}>
           <div className="input-wrapper">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Username</label>
             <input
               type="email"
               id="email"
@@ -63,11 +72,20 @@ const SignInPage = () => {
               required
             />
           </div>
-          <button className="sign-in-button" type="submit">
-            Sign In
+          <div className="input-remember">
+            <input
+              type="checkbox"
+              id="remember-me"
+              checked={rememberMe}
+              onChange={() => setRememberMe(!rememberMe)}
+            />
+            <label htmlFor="remember-me">Remember me</label>
+          </div>
+          {error && <div className="error-message">{error}</div>}
+          <button type="submit" className="sign-in-button" disabled={loading}>
+            {loading ? 'Signing In...' : 'Sign In'}
           </button>
         </form>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
       </section>
     </main>
   );

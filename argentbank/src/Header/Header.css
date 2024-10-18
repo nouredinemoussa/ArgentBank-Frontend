@@ -1,5 +1,6 @@
 .main-nav {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     padding: 5px 20px;
@@ -25,6 +26,8 @@
     font-weight: 600;
     gap: 5px;
     display: flex;
+    border: none;
+    background: white;
   }
   .main-nav-item > a {
     color: #2c3e50;

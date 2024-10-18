@@ -1,45 +1,48 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { logoutUser } from '../redux/userSlice';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserCircle, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import de FontAwesomeIcon
-import { faUserCircle } from '@fortawesome/free-solid-svg-icons'; // Import de l'icône utilisateur
+import ArgentBankLogo from './argentBankLogo.webp';
 
-const Header = ({ isAuthenticated, onSignOut }) => {
-  const navigate = useNavigate();
+const Header = () => {
+  const dispatch = useDispatch();
+  const userInfo = useSelector((state) => state.user.userInfo);
+  const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
 
   const handleSignOut = () => {
-    onSignOut(); 
-    navigate('/sign-in'); // Redirection après la déconnexion
+    dispatch(logoutUser());
   };
 
   return (
-    <header className="main-nav">
-      <div className="main-nav-logo">
-        <Link to="/">
+    <header>
+      <nav className="main-nav">
+        <Link className="main-nav-logo" to="/">
           <img
-            src="/argentBankLogo.webp"
-            alt="Logo Argent Bank"
             className="main-nav-logo-image"
+            src={ArgentBankLogo}
+            alt="Argent Bank Logo"
           />
         </Link>
-      </div>
-      
-      <nav>
-        {!isAuthenticated ? (
-          <div className="main-nav-item">
-            <FontAwesomeIcon icon={faUserCircle}/>
-          <Link to="/sign-in" >
-            Sign In
-          </Link>
-          </div>
-        ) : (
-          <div className="main-nav-item">
-            <FontAwesomeIcon icon={faUserCircle} className="main-nav-item-icon" />
-            <button className="main-nav-item" onClick={handleSignOut}>
-              Sign Out
-            </button>
-          </div>
-        )}
+        
+        <div>
+          {isAuthenticated ? (
+            <div className="main-nav-item">
+              <Link to={`/user/${userInfo?._id}`} className="main-nav-item">
+                <FontAwesomeIcon icon={faUserCircle} /> {userInfo?.firstName}
+              </Link>
+              <button  className="main-nav-item" onClick={handleSignOut}>
+                <FontAwesomeIcon icon={faSignOutAlt} /> Sign Out
+              </button>
+            </div>
+          ) : (
+            <Link to="/sign-in" className="main-nav-item">
+              <FontAwesomeIcon icon={faUserCircle} /> Sign In
+            </Link>
+          )}
+        </div>
       </nav>
     </header>
   );
